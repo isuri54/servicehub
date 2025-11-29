@@ -32,13 +32,14 @@ const Signup = () => {
     try {
       const response = await axios.post('/api/auth/signup', formData);
       localStorage.setItem('token', response.data.token);
-    
+      localStorage.setItem('currentUser', JSON.stringify(response.data.user));
+
       setSuccess('Account created successfully! Welcome to ServiceHub.');
       setShowSuccessMessage(true);
 
       setTimeout(() => {
-      navigate('/dashboard', { state: { user: response.data.user } });
-    }, 700);
+        navigate('/login', { state: { user: response.data.user } });
+      }, 700);
 
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed. Please try again.');
@@ -50,13 +51,13 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-blue-100 to-indigo-200">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-green-100 to-green-200">
       
-      <div className="max-w-lg w-full mx-4 bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-10 border border-gray-100">
+      <div className="max-w-lg w-full mx-4 bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-10 border border-green-100">
         
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <div className="h-14 w-14 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="h-14 w-14 bg-green-600 rounded-2xl flex items-center justify-center shadow-lg">
               <span className="text-white text-3xl font-bold">SH</span>
             </div>
           </div>
@@ -67,11 +68,11 @@ const Signup = () => {
         </div>
 
         {showSuccessMessage && (
-          <div className="mb-6 p-6 bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-green-200 rounded-2xl shadow-lg">
-            <div className="flex items-center justify-center">
+          <div className="mb-6 p-6 bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-200 rounded-2xl shadow-md">
+            <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                  <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-6 w-6 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
@@ -92,65 +93,54 @@ const Signup = () => {
 
         {!showSuccessMessage && (
           <form onSubmit={handleSubmit} className="space-y-6">
+
             <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-gray-800 mb-1">
-                Full Name
-              </label>
+              <label className="block text-sm font-semibold text-gray-800 mb-1">Full Name</label>
               <input
                 type="text"
-                id="name"
                 name="name"
+                required
                 value={formData.name}
                 onChange={handleChange}
-                required
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-gray-50 hover:bg-white"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50 hover:bg-white focus:ring-2 focus:ring-green-500"
                 placeholder="Eg: John Silva"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-800 mb-1">
-                Email Address
-              </label>
+              <label className="block text-sm font-semibold text-gray-800 mb-1">Email Address</label>
               <input
                 type="email"
-                id="email"
                 name="email"
+                required
                 value={formData.email}
                 onChange={handleChange}
-                required
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-gray-50 hover:bg-white"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50 hover:bg-white focus:ring-2 focus:ring-green-500"
                 placeholder="name@example.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-800 mb-1">
-                Password
-              </label>
+              <label className="block text-sm font-semibold text-gray-800 mb-1">Password</label>
               <input
                 type="password"
-                id="password"
                 name="password"
+                required
                 value={formData.password}
                 onChange={handleChange}
-                required
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-gray-50 hover:bg-white"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50 hover:bg-white focus:ring-2 focus:ring-green-500"
                 placeholder="Create a strong password"
               />
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-semibold text-gray-800 mb-1">
-                Phone Number
-              </label>
+              <label className="block text-sm font-semibold text-gray-800 mb-1">Phone Number</label>
               <input
                 type="tel"
-                id="phone"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-gray-50 hover:bg-white"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50 hover:bg-white focus:ring-2 focus:ring-green-500"
                 placeholder="+94 71 234 5678"
               />
             </div>
@@ -158,25 +148,26 @@ const Signup = () => {
             <div>
               <label className="block text-sm font-semibold text-gray-800 mb-2">Account Type</label>
               <div className="grid grid-cols-2 gap-4">
-                <label className="cursor-pointer flex items-center p-4 border rounded-xl hover:shadow-md transition bg-gray-50 hover:bg-white">
+                <label className="cursor-pointer p-4 border rounded-xl bg-gray-50 hover:bg-white hover:shadow-md transition flex items-center">
                   <input
                     type="radio"
                     name="role"
                     value="client"
                     checked={formData.role === 'client'}
                     onChange={handleChange}
-                    className="h-4 w-4 text-indigo-600"
+                    className="h-4 w-4 text-green-600"
                   />
                   <span className="ml-3 text-sm font-medium text-gray-700">Service Seeker</span>
                 </label>
-                <label className="cursor-pointer flex items-center p-4 border rounded-xl hover:shadow-md transition bg-gray-50 hover:bg-white">
+
+                <label className="cursor-pointer p-4 border rounded-xl bg-gray-50 hover:bg-white hover:shadow-md transition flex items-center">
                   <input
                     type="radio"
                     name="role"
                     value="provider"
                     checked={formData.role === 'provider'}
                     onChange={handleChange}
-                    className="h-4 w-4 text-indigo-600"
+                    className="h-4 w-4 text-green-600"
                   />
                   <span className="ml-3 text-sm font-medium text-gray-700">Service Provider</span>
                 </label>
@@ -186,7 +177,7 @@ const Signup = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:bg-indigo-700 transition-all disabled:opacity-50"
+              className="w-full py-3 bg-green-600 text-white font-semibold rounded-xl shadow-lg hover:bg-green-700 transition disabled:opacity-50"
             >
               {loading ? (
                 <div className="flex items-center justify-center">
@@ -197,6 +188,7 @@ const Signup = () => {
                 'Create Account'
               )}
             </button>
+
           </form>
         )}
 
@@ -206,7 +198,7 @@ const Signup = () => {
               Already have an account?{' '}
               <button
                 onClick={() => navigate('/login')}
-                className="font-semibold text-indigo-600 hover:text-indigo-500 transition"
+                className="font-semibold text-green-600 hover:text-green-500"
               >
                 Sign in here
               </button>

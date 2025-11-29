@@ -29,12 +29,13 @@ const Login = () => {
     try {
       const response = await axios.post('/api/auth/login', formData);
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('currentUser', JSON.stringify(response.data.user));
 
       setSuccess('Login successful! Welcome back.');
       setShowSuccessMessage(true);
 
       setTimeout(() => {
-        navigate('/dashboard', { state: { user: response.data.user } });
+        navigate('/home', { state: { user: response.data.user } });
       }, 1200);
 
     } catch (err) {
