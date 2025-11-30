@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.post('/signup', async (req, res) => {
   try {
-    const { name, email, password, phone, role } = req.body;
+    const { name, email, password, phone } = req.body;
 
-    if (!name || !email || !password || !role) {
+    if (!name || !email || !password) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
@@ -25,13 +25,13 @@ router.post('/signup', async (req, res) => {
       email,
       password: hashedPassword,
       phone,
-      role
+      isProvider: false,
     });
 
     await user.save();
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role },
+      { userId: user._id, email: user.email, isProvider: user.isProvider },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -43,7 +43,7 @@ router.post('/signup', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        isProvider: user.isProvider
       }
     });
 
@@ -65,6 +65,10 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required'});
 
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
