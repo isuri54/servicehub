@@ -15,6 +15,35 @@ const Home = () => {
     }
   }, []);
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const categories = [
+    { id: 1, name: "Plumbing", image: "/plumbing.jpg", bgColor: "bg-blue-500" },
+    { id: 2, name: "Welding", image: "/welding.jpg", bgColor: "bg-yellow-500" },
+    { id: 3, name: "Carpentry", image: "/carpentry.jpg", bgColor: "bg-brown-600" },
+    { id: 4, name: "Painting", image: "/painting.jpeg", bgColor: "bg-red-500" },
+    { id: 5, name: "Cleaning", image: "/cleaning.jpeg", bgColor: "bg-green-500" },
+    { id: 6, name: "Driving", image: "/driving.jpg", bgColor: "bg-indigo-500" },
+    { id: 7, name: "Roofing", image: "/roofing.jpeg", bgColor: "bg-gray-700" },
+    { id: 8, name: "Landscaping", image: "/landscaping.jpg", bgColor: "bg-emerald-600" },
+    { id: 9, name: "Construction", image: "/construction.jpg", bgColor: "bg-orange-500" },
+    { id: 10, name: "Appliance Repair", image: "/appliance-repair.jpg", bgColor: "bg-purple-600" }
+  ];
+
+  const visibleCategories = categories.slice(currentIndex, currentIndex + 5);
+
+  const nextSlide = () => {
+    if (currentIndex < 5) {
+      setCurrentIndex(currentIndex + 5);
+    }
+  };
+
+  const prevSlide = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 5);
+    }
+  };
+
   const handleSignupClick = () => {
     navigate('/signup');
   };
@@ -103,6 +132,74 @@ const Home = () => {
                 <div className="circle c1"></div>
                 <div className="circle c2"></div>
                 <div className="circle c3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Popular Services</h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Choose from our most in-demand professional services
+            </p>
+          </div>
+
+          <div className="relative">
+            <div className="flex justify-end mb-8">
+              <div className="flex gap-2">
+                <button
+                  onClick={prevSlide}
+                  disabled={currentIndex === 0}
+                  className="p-2 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={nextSlide}
+                  disabled={currentIndex >= 5}
+                  className="p-2 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+              {visibleCategories.map((category) => (
+                <div
+                  key={category.id}
+                  className="group relative bg-green-50 rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
+                >
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center overflow-hidden">
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-600 transition-colors duration-200">
+                    {category.name}
+                  </h3>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-center mt-8 space-x-2">
+              {[0, 5].map((index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    currentIndex === index ? 'bg-green-600 scale-125' : 'bg-gray-300 hover:bg-gray-400'
+                  }`}
+                />
+              ))}
             </div>
           </div>
         </div>
