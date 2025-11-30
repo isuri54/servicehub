@@ -8,7 +8,6 @@ const Signup = () => {
     email: '',
     password: '',
     phone: '',
-    role: 'client'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -143,35 +142,6 @@ const Signup = () => {
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50 hover:bg-white focus:ring-2 focus:ring-green-500"
                 placeholder="+94 71 234 5678"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-2">Account Type</label>
-              <div className="grid grid-cols-2 gap-4">
-                <label className="cursor-pointer p-4 border rounded-xl bg-gray-50 hover:bg-white hover:shadow-md transition flex items-center">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="client"
-                    checked={formData.role === 'client'}
-                    onChange={handleChange}
-                    className="h-4 w-4 text-green-600"
-                  />
-                  <span className="ml-3 text-sm font-medium text-gray-700">Service Seeker</span>
-                </label>
-
-                <label className="cursor-pointer p-4 border rounded-xl bg-gray-50 hover:bg-white hover:shadow-md transition flex items-center">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="provider"
-                    checked={formData.role === 'provider'}
-                    onChange={handleChange}
-                    className="h-4 w-4 text-green-600"
-                  />
-                  <span className="ml-3 text-sm font-medium text-gray-700">Service Provider</span>
-                </label>
-              </div>
             </div>
 
             <button
