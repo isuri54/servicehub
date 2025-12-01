@@ -52,6 +52,10 @@ const Home = () => {
     navigate('/login');
   };
 
+  const handleProvider = () => {
+    navigate('/provider');
+  };
+
   const handleProfileClick = () => {
     if (currentUser) {
       navigate('/');
@@ -72,7 +76,7 @@ const Home = () => {
           <button className="hover:text-green-300 text-lg">Categories</button>
 
           <button
-            onClick={handleSignupClick}
+            onClick={handleProvider}
             className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
           >
             Become Provider
@@ -80,7 +84,11 @@ const Home = () => {
 
           <div className="flex items-center gap-3 cursor-pointer" onClick={handleProfileClick}>
             <img
-              src="/user.png"
+              src={
+                currentUser?.profileImage 
+                ? currentUser.profileImage 
+                : "/user.png"
+              }
               alt="profile"
               className="w-10 h-10 rounded-full border-2 border-white"
             />
