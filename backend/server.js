@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
+const providerRoutes = require('./routes/provider') 
 
 dotenv.config();
 const app = express();
@@ -10,6 +11,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
+app.use("/api/provider", providerRoutes);
+
 
 app.get('/', (req, res) => {
   res.json({ message: 'Server is running' });
