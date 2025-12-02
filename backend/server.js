@@ -2,16 +2,20 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const path = require('path');
 const authRoutes = require('./routes/auth');
-const providerRoutes = require('./routes/provider') 
+const provider = require('./routes/provider');
+const providerRoutes = require('./routes/providerRoutes'); 
 
 dotenv.config();
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
-app.use("/api/provider", providerRoutes);
+app.use('/api/provider', provider);
+app.use('/api/providers', providerRoutes);
 
 
 app.get('/', (req, res) => {
