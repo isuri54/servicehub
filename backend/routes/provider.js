@@ -3,6 +3,7 @@ const User = require("../models/User");
 const Provider = require("../models/Provider");
 const upload = require("../middleware/upload");
 const router = express.Router();
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
 
 const uploadFields = upload.fields([
   { name: "profileImage", maxCount: 1 },
@@ -42,8 +43,11 @@ router.post("/register", uploadFields, async (req, res) => {
     await user.save();
 
     res.status(201).json({ 
-      message: "Provider profile created successfully", 
-      provider 
+      success: true,
+      message: "Provider profile created successfully",
+      profileImage: profileImage ? `${BASE_URL}/uploads/${profileImage}` : null,
+      workImages: workImages.map(img => `${BASE_URL}/uploads/${img}`),
+      provider
     });
 
   } catch (error) {
