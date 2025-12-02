@@ -183,6 +183,7 @@ const Home = () => {
                 <div
                   key={category.id}
                   className="group relative bg-green-50 rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
+                  onClick={() => navigate(`/category/${category.name.toLowerCase().replace(/\s+/g, "-")}`)}
                 >
                   <div className="w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center overflow-hidden">
                     <img
