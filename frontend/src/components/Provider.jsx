@@ -40,7 +40,6 @@ const ProviderRegistration = () => {
 
       const data = new FormData();
       data.append("userId", userId);
-
       data.append("category", form.category);
       data.append("district", form.district);
       data.append("education", form.education);
@@ -49,18 +48,38 @@ const ProviderRegistration = () => {
       if (profileImage) data.append("profileImage", profileImage);
       workImages.forEach((file) => data.append("workImages", file));
 
-      await axios.post("/api/provider/register", data, {
-        headers: { "Content-Type": "multipart/form-data" }
+      const response = await axios.post("/api/provider/register", data, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setSuccess("Provider registration completed successfully!");
+      if (response.data.success) {
+        const updatedUser = {
+          ...user,
+          isProvider: true,
+          providerDetails: {
+            category: form.category,
+            district: form.district,
+            education: form.education,
+            experience: form.experience,
+            profileImage: response.data.profileImage 
+              ? response.data.profileImage 
+              : user.profileImage,
+            workImages: response.data.workImages || [],
+          },
+        };
 
-      setTimeout(() => {
-        navigate("/home");
-      }, 1500);
+        localStorage.setItem("currentUser", JSON.stringify(updatedUser));
 
+        setSuccess("Provider registration completed successfully!");
+        setTimeout(() => {
+          navigate("/provider-dashboard");
+        }, 1500);
+      } else {
+        setError(response.data.message || "Registration failed.");
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed.");
+      console.error("Provider registration error:", err);
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
