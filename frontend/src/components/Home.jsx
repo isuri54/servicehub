@@ -1,9 +1,13 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
+import UserProfileModal from './UserProfile';
 
 const Home = () => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showCategories, setShowCategories] = useState(false);
+  const categoriesRef = useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -17,6 +21,16 @@ const Home = () => {
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (categoriesRef.current && !categoriesRef.current.contains(e.target)) {
+        setShowCategories(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const categories = [
     { id: 1, name: "Plumbing", image: "/plumbing.jpg", bgColor: "bg-blue-500" },
     { id: 2, name: "Welding", image: "/welding.jpg", bgColor: "bg-yellow-500" },
@@ -29,6 +43,12 @@ const Home = () => {
     { id: 9, name: "Construction", image: "/construction.jpg", bgColor: "bg-orange-500" },
     { id: 10, name: "Appliance Repair", image: "/appliance-repair.jpg", bgColor: "bg-purple-600" }
   ];
+
+  const handleCategoryClick = (name) => {
+    const formatted = name.toLowerCase().replace(/\s+/g, "-");
+    navigate(`/category/${formatted}`);
+    setShowCategories(false); // close dropdown after click
+  };
 
   const visibleCategories = categories.slice(currentIndex, currentIndex + 5);
 
@@ -56,6 +76,10 @@ const Home = () => {
     navigate('/provider');
   };
 
+  const handleBookingsClick = () => {
+    navigate('/my-bookings');
+  };
+
   const handleProfileClick = () => {
     if (currentUser) {
       navigate('/');
@@ -73,7 +97,36 @@ const Home = () => {
         </div>
 
         <div className="flex items-center gap-8">
-          <button className="hover:text-green-300 text-lg">Categories</button>
+          <div className="relative" ref={categoriesRef}>
+            <button
+              onMouseEnter={() => setShowCategories(true)}
+              className="hover:text-green-300 text-lg font-medium transition"
+            >
+              Categories
+            </button>
+
+            {showCategories && (
+              <div
+                onMouseLeave={() => setShowCategories(false)}
+                className="absolute top-12 left-1/2 -translate-x-1/2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-4 duration-200"
+              >
+                <div className="grid gap-2 p-3 max-h-96 overflow-y-auto">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => handleCategoryClick(cat.name)}
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-green-50 transition group cursor-pointer"
+                    >
+                      <span className="text-gray-800 font-medium group-hover:text-green-600">
+                        {cat.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          <button className="hover:text-green-300 text-lg" onClick={handleBookingsClick}>My Bookings</button>
 
           <button
             onClick={handleProvider}
@@ -82,20 +135,15 @@ const Home = () => {
             Become Provider
           </button>
 
-          <div className="flex items-center gap-3 cursor-pointer" onClick={handleProfileClick}>
-            <img
-              src={
-                currentUser?.profileImage 
-                ? currentUser.profileImage 
-                : "/user.png"
-              }
-              alt="profile"
-              className="w-10 h-10 rounded-full border-2 border-white"
-            />
-            <span className="font-semibold">
-              {currentUser ? currentUser.name : 'Sign In'}
-            </span>
+          <div 
+            className="flex items-center gap-3 cursor-pointer" 
+            onClick={() => setShowProfile(true)}>
+
+              <img src={currentUser?.profileImage || "/user.png"} alt="profile" className="w-10 h-10 rounded-full border-2 border-white" />
+              <span className="font-semibold">{currentUser?.name || "Guest"}</span>
           </div>
+
+          <UserProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
         </div>
       </nav>
 
