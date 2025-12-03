@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 
 const ProviderProfileView = () => {
   const { providerId } = useParams();
@@ -9,6 +11,14 @@ const ProviderProfileView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+  const [bookedDates, setBookedDates] = useState([]);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [isLongTerm, setIsLongTerm] = useState(false);
+  const [bookingError, setBookingError] = useState("");
+  const [bookingSuccess, setBookingSuccess] = useState("");
+  const token = localStorage.getItem("token");
+
   
     useEffect(() => {
       const token = localStorage.getItem('token');
@@ -20,19 +30,82 @@ const ProviderProfileView = () => {
       }
     }, []);
 
-  useEffect(() => {
-    const fetchProvider = async () => {
-      try {
-        const response = await axios.get(`/api/providerprofile/profileview/${providerId}`);
-        setProvider(response.data.provider);
-        setLoading(false);
-      } catch (err) {
-        setError("Provider not found or unavailable.");
-        setLoading(false);
-      }
+    useEffect(() => {
+        const fetchProvider = async () => {
+        try {
+            const response = await axios.get(`/api/providerprofile/profileview/${providerId}`);
+            setProvider(response.data.provider);
+            const availabilityRes = await axios.get(`/api/bookings/availability/${providerId}`);
+            setBookedDates(availabilityRes.data.bookedDates || []);
+            setLoading(false);
+        } catch (err) {
+            setError("Provider not found or unavailable.");
+            setLoading(false);
+        }
+        };
+        fetchProvider();
+    }, [providerId]);
+
+    const handleDateChange = (date) => {
+        setSelectedDate(date);
+        setBookingError("");
     };
-    fetchProvider();
-  }, [providerId]);
+
+    const handleBooking = async () => {
+        if (!selectedDate) {
+        setBookingError("Please select a date or range.");
+        return;
+        }
+
+        try {
+        const bookingData = {
+            providerId,
+            selectedDate,
+            isLongTerm,
+        };
+
+        const response = await axios.post("/api/bookings/create", bookingData, {
+            headers: {
+            Authorization: `Bearer ${token}`
+            }
+        });
+        setBookingSuccess("Booking confirmed! We'll notify the provider.");
+        setTimeout(() => {
+            setShowBookingModal(false);
+            navigate("/home");
+        }, 2000);
+        } catch (err) {
+        setBookingError(err.response?.data?.message || "Booking failed. Try again.");
+        }
+    };
+
+    const isDateBooked = ({ date, view }) => {
+        if (view !== "month") return false;
+        return bookedDates.some(
+        (booked) => date >= new Date(booked.start) && date <= new Date(booked.end)
+        );
+    };
+
+    if (loading) {
+        return (
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-emerald-200 flex items-center justify-center">
+            <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-green-600"></div>
+        </div>
+        );
+    }
+
+  if (error || !provider) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-emerald-200 flex items-center justify-center">
+        <div className="text-center py-20">
+          <p className="text-3xl font-bold text-gray-700 mb-4">Provider Not Found</p>
+          <button onClick={() => navigate(-1)} className="px-8 py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition">
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -63,7 +136,6 @@ const ProviderProfileView = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-emerald-200">
-      {/* Navbar */}
       <nav className="w-full bg-[#00204A] text-white shadow-lg py-4 px-6 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
           <img src="/servicehub.png" alt="logo" className="w-10 h-10 rounded-full" />
@@ -85,7 +157,6 @@ const ProviderProfileView = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <div className="bg-gradient-to-r from-green-600 to-emerald-600 py-16">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center gap-10">
@@ -124,12 +195,9 @@ const ProviderProfileView = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid lg:grid-cols-3 gap-10">
-          {/* Left Column - Details */}
           <div className="lg:col-span-2 space-y-10">
-            {/* About */}
             <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">About Me</h2>
               <div className="space-y-5 text-lg text-gray-700">
@@ -148,7 +216,6 @@ const ProviderProfileView = () => {
               </div>
             </div>
 
-            {/* Work Gallery */}
             {provider.workImages && provider.workImages.length > 0 && (
               <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100">
                 <h2 className="text-3xl font-bold text-gray-900 mb-8">My Work</h2>
@@ -167,7 +234,6 @@ const ProviderProfileView = () => {
               </div>
             )}
 
-            {/* Reviews Placeholder */}
             <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Client Reviews</h2>
               <div className="text-center py-12 text-gray-500">
@@ -177,7 +243,6 @@ const ProviderProfileView = () => {
             </div>
           </div>
 
-          {/* Right Column - Contact Card */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-3xl shadow-2xl border border-green-100 sticky top-24">
               <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-t-3xl p-8 text-center text-white">
@@ -201,9 +266,58 @@ const ProviderProfileView = () => {
                   <button className="w-full py-5 border-2 border-green-600 text-green-600 text-lg font-bold rounded-xl hover:bg-green-600 hover:text-white transition">
                     Call Provider
                   </button>
-                  <button className="w-full py-5 bg-emerald-600 text-white text-lg font-bold rounded-xl hover:bg-emerald-700 transition shadow-lg">
+                  <button className="w-full py-5 bg-emerald-600 text-white text-lg font-bold rounded-xl hover:bg-emerald-700 transition shadow-lg" onClick={() => setShowBookingModal(true)}>
                     Book Service
                   </button>
+
+                  {showBookingModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl relative">
+                        <button onClick={() => setShowBookingModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        </button>
+
+                        <h2 className="text-3xl font-bold text-gray-900 mb-6">Book {provider.name}</h2>
+
+                        <div className="mb-6">
+                        <label className="flex items-center gap-3 text-lg text-gray-700">
+                            <input
+                            type="checkbox"
+                            checked={isLongTerm}
+                            onChange={(e) => setIsLongTerm(e.target.checked)}
+                            className="w-5 h-5 rounded border-gray-300 text-green-600"
+                            />
+                            Long-term project (select date range)
+                        </label>
+                        <p className="text-sm text-gray-500 mt-1">
+                            {isLongTerm ? "Select start and end dates for projects like construction or roofing." : "Select a single day for short services."}
+                        </p>
+                        </div>
+
+                        <Calendar
+                        onChange={handleDateChange}
+                        value={selectedDate}
+                        selectRange={isLongTerm}
+                        minDate={new Date()}
+                        tileDisabled={isDateBooked}
+                        className="border border-gray-300 rounded-xl shadow-md w-full"
+                        />
+
+                        {bookingError && <p className="mt-4 text-red-600">{bookingError}</p>}
+                        {bookingSuccess && <p className="mt-4 text-green-600">{bookingSuccess}</p>}
+
+                        <button
+                        onClick={handleBooking}
+                        disabled={loading}
+                        className="w-full mt-8 py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition disabled:opacity-50"
+                        >
+                        {loading ? "Booking..." : "Confirm Booking"}
+                        </button>
+                    </div>
+                    </div>
+                )}
                 </div>
 
                 <div className="text-center pt-6 border-t border-gray-200">
