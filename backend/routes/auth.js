@@ -3,6 +3,12 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
+const auth = require('../middleware/auth');
+const multer = require('multer');
+const upload = multer({
+  dest: 'uploads/',
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
 
 router.post('/signup', async (req, res) => {
   try {
@@ -43,7 +49,9 @@ router.post('/signup', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        isProvider: user.isProvider
+        phone: user.phone || "",
+        isProvider: user.isProvider,
+        profileImage: ""
       }
     });
 
@@ -88,6 +96,7 @@ router.post('/login', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone || "",
         role: user.role,
         profileImage: user.profileImage || ""
       }
@@ -95,6 +104,35 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error during login' });
+  }
+});
+
+router.put("/update-profile", auth, upload.single("profileImage"), async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+    const updateData = { name, phone };
+
+    if (req.file) {
+      updateData.profileImage = "/uploads/" + req.file.filename;
+    }
+
+    const user = await User.findByIdAndUpdate(req.userId, updateData, { new: true })
+      .select("name email phone profileImage");
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || "",
+        profileImage: user.profileImage || "",
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Update failed" });
   }
 });
 

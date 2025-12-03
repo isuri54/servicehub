@@ -39,4 +39,62 @@ router.post("/create", auth, async (req, res) => {
   }
 });
 
+router.get("/my-bookings", auth, async (req, res) => {
+  try {
+    const bookings = await Booking.find({ userId: req.userId })
+      .populate({
+        path: "providerId",
+        populate: {
+          path: "userId",
+          select: "name profileImage"
+        }
+      })
+      .sort({ "dateRange.start": -1 });
+
+    const formattedBookings = bookings.map(b => {
+      if (!b.providerId) {
+        return null;
+      }
+
+      return {
+        _id: b._id,
+        dateRange: b.dateRange,
+        status: b.status,
+        provider: {
+          _id: b.providerId._id,
+          name: b.providerId.userId?.name || "Unknown Provider",
+          profileImage: b.providerId.profileImage
+            ? `${process.env.BASE_URL || 'http://localhost:5000'}/uploads/${b.providerId.profileImage}`
+            : null,
+          category: b.providerId.category,
+          district: b.providerId.district,
+        }
+      };
+    }).filter(Boolean);
+
+    res.json({ success: true, bookings: formattedBookings });
+  } catch (err) {
+    console.error("Error fetching bookings:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.put("/cancel/:bookingId", auth, async (req, res) => {
+  try {
+    const booking = await Booking.findOneAndUpdate(
+      { _id: req.params.bookingId, userId: req.userId },
+      { status: "cancelled" },
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    res.json({ success: true, message: "Booking cancelled" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 module.exports = router;
