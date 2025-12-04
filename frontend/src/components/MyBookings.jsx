@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import UserProfileModal from './UserProfile';
+import ReviewModal from "./ReviewModal";
 
 const MyBookings = () => {
   const navigate = useNavigate();
@@ -10,6 +11,8 @@ const MyBookings = () => {
   const [error, setError] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
   
     useEffect(() => {
       const token = localStorage.getItem('token');
@@ -24,17 +27,29 @@ const MyBookings = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axios.get("/api/bookings/my-bookings");
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate("/login");
+          return;
+        }
+
+        const response = await axios.get("/api/bookings/my-bookings", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
         setBookings(response.data.bookings || []);
         setLoading(false);
       } catch (err) {
-        setError("Failed to load your bookings. Please try again.");
+        console.error("Error:", err.response?.data);
+        setError("Failed to load your bookings. Please log in again.");
         setLoading(false);
       }
     };
 
     fetchBookings();
-  }, []);
+  }, [navigate]);
 
   const handleCancel = async (bookingId) => {
     if (!window.confirm("Are you sure you want to cancel this booking?")) return;
@@ -46,6 +61,24 @@ const MyBookings = () => {
       ));
     } catch (err) {
       alert("Failed to cancel booking");
+    }
+  };
+
+  const handleComplete = async (bookingId) => {
+    if (!window.confirm("Did the provider complete the work successfully?")) return;
+
+    try {
+      await axios.put(`/api/bookings/complete/${bookingId}`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+
+      setBookings(bookings.map(b => 
+        b._id === bookingId ? { ...b, status: "completed" } : b
+      ));
+
+      alert("Thank you! You can now leave a review for this provider.");
+    } catch (err) {
+      alert("Failed to mark as completed");
     }
   };
 
@@ -75,14 +108,6 @@ const MyBookings = () => {
 
   const handleBookingsClick = () => {
     navigate('/my-bookings');
-  };
-
-  const handleProfileClick = () => {
-    if (currentUser) {
-      navigate('/');
-    } else {
-      navigate('/login');
-    }
   };
 
   return (
@@ -187,6 +212,28 @@ const MyBookings = () => {
                             Cancel Booking
                           </button>
                         )}
+                        {booking.status === "confirmed" && (
+                          <button
+                            onClick={() => handleComplete(booking._id)}
+                            className="px-8 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-lg"
+                          >
+                            Mark as Completed
+                          </button>
+                        )}
+
+                        {booking.status === "completed" && (
+                          <div className="flex items-center gap-3">
+                            <span className="px-4 py-2 bg-green-100 text-green-800 rounded-full font-medium">
+                              Completed
+                            </span>
+                            <button className="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition" onClick={() => {
+                              setSelectedBooking(booking);
+                              setShowReviewModal(true);
+                            }}>
+                              Leave Review
+                            </button>
+                          </div>
+                        )}
                         <button
                           onClick={() => navigate(`/provider/${booking.provider._id}`)}
                           className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition"
@@ -202,6 +249,15 @@ const MyBookings = () => {
           </div>
         )}
       </div>
+
+      <ReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        booking={selectedBooking}
+        onSuccess={() => {
+          setShowReviewModal(false);
+        }}
+      />
     </div>
   );
 };
