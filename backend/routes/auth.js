@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
+const Provider = require('../models/Provider');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
@@ -83,8 +84,10 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    const providerProfile = await Provider.findOne({ userId: user._id });
+
     const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role },
+      { userId: user._id, email: user.email, isProvider: !!providerProfile },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -97,7 +100,7 @@ router.post('/login', async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone || "",
-        role: user.role,
+        isProvider: !!providerProfile,
         profileImage: user.profileImage || ""
       }
     });

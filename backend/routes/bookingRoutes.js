@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const Booking = require("../models/Booking");
 const User = require("../models/User");
+const Provider = require("../models/Provider");
+const Review = require("../models/Review");
 const auth = require("../middleware/auth")
 
 router.get("/availability/:providerId", async (req, res) => {
@@ -93,6 +95,112 @@ router.put("/cancel/:bookingId", auth, async (req, res) => {
 
     res.json({ success: true, message: "Booking cancelled" });
   } catch (err) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.get("/provider-bookings", auth, async (req, res) => {
+  try {
+    const provider = await Provider.findOne({ userId: req.userId });
+    if (!provider) {
+      return res.status(404).json({ success: false, message: "Provider profile not found" });
+    }
+
+    const bookings = await Booking.find({ providerId: provider._id })
+      .populate({
+        path: "userId",
+        select: "name profileImage phone district"
+      })
+      .sort({ createdAt: -1 });
+
+    const formatted = bookings.map(b => ({
+      _id: b._id,
+      dateRange: b.dateRange,
+      status: b.status,
+      client: {
+        name: b.userId?.name || "Unknown Client",
+        profileImage: b.userId?.profileImage
+          ? `${process.env.BASE_URL || 'http://localhost:5000'}/uploads/${b.userId.profileImage}`
+          : null,
+        phone: b.userId?.phone || null,
+        district: b.userId?.district || "N/A"
+      }
+    }));
+
+    res.json({ 
+      success: true,
+      bookings: formatted,
+      rating: provider.rating || 0,
+      reviewCount: provider.reviewCount || 0 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.put("/accept/:bookingId", auth, async (req, res) => {
+  try {
+    const provider = await Provider.findOne({ userId: req.userId });
+    const booking = await Booking.findOneAndUpdate(
+      { _id: req.params.bookingId, providerId: provider._id },
+      { status: "confirmed" },
+      { new: true }
+    );
+
+    if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
+
+    res.json({ success: true, message: "Booking accepted" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.put("/complete/:bookingId", auth, async (req, res) => {
+  try {
+    const booking = await Booking.findOneAndUpdate(
+      { _id: req.params.bookingId, userId: req.userId, status: "confirmed" },
+      { status: "completed" },
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found or not confirmed" });
+    }
+
+    res.json({ success: true, message: "Job marked as completed!", booking });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.post("/review", auth, async (req, res) => {
+  try {
+    const { bookingId, providerId, rating, comment } = req.body;
+    const existing = await Review.findOne({ bookingId, clientId: req.userId });
+    if (existing) return res.status(400).json({ success: false, message: "Already reviewed" });
+
+    const review = new Review({
+      bookingId,
+      providerId,
+      clientId: req.userId,
+      rating,
+      comment
+    });
+    await review.save();
+
+    const reviews = await Review.find({ providerId });
+    const avgRating = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
+
+    await Provider.findByIdAndUpdate(providerId, {
+      rating: Math.round(avgRating * 10) / 10,
+      reviewCount: reviews.length
+    });
+
+    res.json({ success: true, message: "Thank you for your review!" });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
