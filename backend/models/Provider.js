@@ -9,6 +9,8 @@ const providerSchema = new mongoose.Schema({
   district: { type: String, required: true },
   education: { type: String, required: true },
   experience: { type: String, required: true },
+  rating: { type: Number, default: 0 },
+  reviewCount: { type: Number, default: 0 }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Provider", providerSchema);
