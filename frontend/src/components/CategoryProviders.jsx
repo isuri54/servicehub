@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import UserProfileModal from './UserProfile';
 
 const CategoryProviders = () => {
   const { categoryName } = useParams();
@@ -8,11 +9,24 @@ const CategoryProviders = () => {
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showProfile, setShowProfile] = useState(false);
+  
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const savedUser = localStorage.getItem('currentUser');
+      if (savedUser) {
+        setCurrentUser(JSON.parse(savedUser));
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const fetchProviders = async () => {
       try {
         const response = await axios.get(`/api/providers/category/${encodeURIComponent(categoryName)}`);
+        
         setProviders(response.data.providers || []);
         setLoading(false);
       } catch (err) {
@@ -31,25 +45,50 @@ const CategoryProviders = () => {
       .join(" ");
   };
 
+  const handleProvider = () => {
+    navigate('/provider');
+  };
+
+  const handleBookingsClick = () => {
+    navigate('/my-bookings');
+  };
+
+  const handleProfileClick = () => {
+    if (currentUser) {
+      navigate('/');
+    } else {
+      navigate('/login');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-emerald-200">
-      <nav className="w-full bg-[#00204A] text-white shadow-lg py-4 px-6 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+      <nav className="w-full bg-[#00204A] text-white shadow-lg py-4 px-6 flex items-center justify-between">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/home') }>
           <img src="/servicehub.png" alt="logo" className="w-10 h-10 rounded-full" />
           <h1 className="text-2xl font-bold">ServiceHub</h1>
         </div>
+
         <div className="flex items-center gap-8">
           <button className="hover:text-green-300 text-lg">Categories</button>
+          <button className="hover:text-green-300 text-lg" onClick={handleBookingsClick}>My Bookings</button>
+
           <button
-            onClick={() => navigate("/provider")}
+            onClick={handleProvider}
             className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
           >
             Become Provider
           </button>
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/login")}>
-            <img src="/user.png" alt="profile" className="w-10 h-10 rounded-full border-2 border-white" />
-            <span className="font-semibold">Sign In</span>
+
+          <div 
+            className="flex items-center gap-3 cursor-pointer" 
+            onClick={() => setShowProfile(true)}>
+
+              <img src={currentUser?.profileImage || "/user.png"} alt="profile" className="w-10 h-10 rounded-full border-2 border-white" />
+              <span className="font-semibold">{currentUser?.name || "Guest"}</span>
           </div>
+
+          <UserProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
         </div>
       </nav>
 
@@ -138,13 +177,26 @@ const CategoryProviders = () => {
 
                 <div className="flex items-center mt-4">
                   <div className="flex text-yellow-500">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-5 h-5" fill={i < 4 ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                    ))}
+                    {provider.rating > 0 ? (
+                      [...Array(5)].map((_, i) => (
+                        <svg
+                          key={i}
+                          className={`w-5 h-5 ${i < Math.round(provider.rating) ? "text-yellow-400" : "text-gray-300"}`}
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                      ))
+                    ) : (
+                      <span className="text-gray-400 text-sm">No ratings yet</span>
+                    )}
                   </div>
-                  <span className="ml-2 text-gray-600 font-medium">4.8 (28 reviews)</span>
+                  {provider.rating > 0 && (
+                    <span className="ml-2 text-gray-600 font-medium">
+                      {provider.rating.toFixed(1)} ({provider.reviewCount || 0} review{provider.reviewCount !== 1 ? "s" : ""})
+                    </span>
+                  )}
                 </div>
 
                 <div className="mt-4 flex items-center justify-between">
@@ -158,7 +210,7 @@ const CategoryProviders = () => {
                   </div>
                 </div>
 
-                <button className="w-full mt-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition">
+                <button className="w-full mt-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition" onClick={() => navigate(`/provider/${provider._id}`)}>
                   View Profile
                 </button>
               </div>
