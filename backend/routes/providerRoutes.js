@@ -15,7 +15,7 @@ router.get('/category/:categoryName', async (req, res) => {
     })
     .populate({
       path: 'userId',
-      select: 'name profileImage phone' 
+      select: 'name profileImage phone category district education experience rating reviewCount' 
     });
 
     const providerList = providers.map(p => ({
@@ -28,7 +28,9 @@ router.get('/category/:categoryName', async (req, res) => {
       education: p.education,
       experience: p.experience,
       category: p.category,
-      workImages: p.workImages || []
+      workImages: p.workImages || [],
+      rating: p.rating || 0,
+      reviewCount: p.reviewCount || 0
     }));
 
     res.json({

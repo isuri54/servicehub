@@ -20,11 +20,14 @@ router.get("/profileview/:providerId", async (req, res) => {
       profileImage: provider.profileImage
         ? `${BASE_URL}/uploads/${provider.profileImage}`
         : null,
+      phone: provider.userId?.phone || null,
       category: provider.category,
       district: provider.district,
       education: provider.education,
       experience: provider.experience,
       workImages: provider.workImages?.map(img => `${BASE_URL}/uploads/${img}`) || [],
+      rating: provider.rating || 0,
+      reviewCount: provider.reviewCount || 0
     };
 
     res.json({ success: true, provider: providerData });
