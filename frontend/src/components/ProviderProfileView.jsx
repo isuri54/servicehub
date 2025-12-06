@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import UserProfileModal from './UserProfile';
 
 const ProviderProfileView = () => {
   const { providerId } = useParams();
@@ -18,6 +19,7 @@ const ProviderProfileView = () => {
   const [bookingError, setBookingError] = useState("");
   const [bookingSuccess, setBookingSuccess] = useState("");
   const token = localStorage.getItem("token");
+  const [showProfile, setShowProfile] = useState(false);
 
   
     useEffect(() => {
@@ -72,7 +74,7 @@ const ProviderProfileView = () => {
         setBookingSuccess("Booking confirmed! We'll notify the provider.");
         setTimeout(() => {
             setShowBookingModal(false);
-            navigate("/home");
+            navigate("/my-bookings");
         }, 2000);
         } catch (err) {
         setBookingError(err.response?.data?.message || "Booking failed. Try again.");
@@ -132,28 +134,52 @@ const ProviderProfileView = () => {
         </div>
       </div>
     );
-  }
+  };
+
+  const handleProvider = () => {
+    navigate('/provider');
+  };
+
+  const handleBookingsClick = () => {
+    navigate('/my-bookings');
+  };
+
+  const handleProfileClick = () => {
+    if (currentUser) {
+      navigate('/');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-emerald-200">
-      <nav className="w-full bg-[#00204A] text-white shadow-lg py-4 px-6 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+      <nav className="w-full bg-[#00204A] text-white shadow-lg py-4 px-6 flex items-center justify-between">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/home') }>
           <img src="/servicehub.png" alt="logo" className="w-10 h-10 rounded-full" />
           <h1 className="text-2xl font-bold">ServiceHub</h1>
         </div>
+
         <div className="flex items-center gap-8">
+          <button className="hover:text-green-300 text-lg">Categories</button>
+          <button className="hover:text-green-300 text-lg" onClick={handleBookingsClick}>My Bookings</button>
+
           <button
-            onClick={() => navigate("/provider")}
+            onClick={handleProvider}
             className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
           >
             Become Provider
           </button>
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/login")}>
-            <img src="/user.png" alt="profile" className="w-10 h-10 rounded-full border-2 border-white" />
-            <span className="font-semibold">
-              {currentUser ? currentUser.name : 'Sign In'}
-            </span>
+
+          <div 
+            className="flex items-center gap-3 cursor-pointer" 
+            onClick={() => setShowProfile(true)}>
+
+              <img src={currentUser?.profileImage || "/user.png"} alt="profile" className="w-10 h-10 rounded-full border-2 border-white" />
+              <span className="font-semibold">{currentUser?.name || "Guest"}</span>
           </div>
+
+          <UserProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
         </div>
       </nav>
 
@@ -236,9 +262,33 @@ const ProviderProfileView = () => {
 
             <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Client Reviews</h2>
-              <div className="text-center py-12 text-gray-500">
-                <p className="text-xl">No reviews yet</p>
-                <p className="mt-2">Be the first to hire {provider.name.split(" ")[0]}!</p>
+              <div className="text-center">
+                <div className="flex justify-center text-yellow-500 text-2xl mb-2">
+                  {provider.rating > 0 ? (
+                    [...Array(5)].map((_, i) => (
+                      <svg
+                        key={i}
+                        className={`w-8 h-8 ${i < Math.round(provider.rating) ? "text-yellow-400" : "text-gray-300"}`}
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    ))
+                  ) : (
+                    <span className="text-gray-400">No ratings yet</span>
+                  )}
+                </div>
+                {provider.rating > 0 ? (
+                  <>
+                    <p className="text-4xl font-bold text-gray-900">{provider.rating.toFixed(1)}</p>
+                    <p className="text-gray-600">
+                      Based on {provider.reviewCount || 0} review{provider.reviewCount !== 1 ? "s" : ""}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-xl text-gray-500 mt-4">Be the first to review!</p>
+                )}
               </div>
             </div>
           </div>
@@ -253,10 +303,32 @@ const ProviderProfileView = () => {
               <div className="p-8 space-y-6">
                 <div className="text-center">
                   <div className="flex justify-center text-yellow-500 text-2xl mb-2">
-                    ★★★★★
+                    {provider.rating > 0 ? (
+                      [...Array(5)].map((_, i) => (
+                        <svg
+                          key={i}
+                          className={`w-8 h-8 ${i < Math.round(provider.rating) ? "text-yellow-400" : "text-gray-300"}`}
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                      ))
+                    ) : (
+                      <span className="text-gray-400 text-2xl">No ratings yet</span>
+                    )}
                   </div>
-                  <p className="text-3xl font-bold text-gray-900">4.9</p>
-                  <p className="text-gray-600">Based on 28 reviews</p>
+
+                  {provider.rating > 0 ? (
+                    <>
+                      <p className="text-4xl font-bold text-gray-900">{provider.rating.toFixed(1)}</p>
+                      <p className="text-lg text-gray-600">
+                        Based on {provider.reviewCount || 0} review{provider.reviewCount !== 1 ? "s" : ""}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-xl text-gray-500 mt-4">Be the first to review!</p>
+                  )}
                 </div>
 
                 <div className="space-y-4">
