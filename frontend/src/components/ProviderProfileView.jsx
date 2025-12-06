@@ -22,6 +22,7 @@ const ProviderProfileView = () => {
   const token = localStorage.getItem("token");
   const [showProfile, setShowProfile] = useState(false);
   const [showCallModal, setShowCallModal] = useState(false);
+  const [unavailableDates, setUnavailableDates] = useState([]);
 
   
     useEffect(() => {
@@ -38,9 +39,13 @@ const ProviderProfileView = () => {
         const fetchProvider = async () => {
         try {
             const response = await axios.get(`/api/providerprofile/profileview/${providerId}`);
+            const providerData = response.data.provider;
+
             setProvider(response.data.provider);
             const availabilityRes = await axios.get(`/api/bookings/availability/${providerId}`);
             setBookedDates(availabilityRes.data.bookedDates || []);
+
+            setUnavailableDates(providerData.unavailableDates || []);
             setLoading(false);
         } catch (err) {
             setError("Provider not found or unavailable.");
@@ -84,10 +89,17 @@ const ProviderProfileView = () => {
     };
 
     const isDateBooked = ({ date, view }) => {
-        if (view !== "month") return false;
-        return bookedDates.some(
+      if (view !== "month") return false;
+
+      const dateStr = date.toISOString().split("T")[0];
+
+      const isBooked = bookedDates.some(
         (booked) => date >= new Date(booked.start) && date <= new Date(booked.end)
-        );
+      );
+
+      const isUnavailable = unavailableDates.includes(dateStr);
+
+      return isBooked || isUnavailable;
     };
 
     if (loading) {
@@ -371,12 +383,20 @@ const ProviderProfileView = () => {
                         </div>
 
                         <Calendar
-                        onChange={handleDateChange}
-                        value={selectedDate}
-                        selectRange={isLongTerm}
-                        minDate={new Date()}
-                        tileDisabled={isDateBooked}
-                        className="border border-gray-300 rounded-xl shadow-md w-full"
+                          onChange={handleDateChange}
+                          value={selectedDate}
+                          selectRange={isLongTerm}
+                          minDate={new Date()}
+                          tileDisabled={isDateBooked}
+                          tileClassName={({ date, view }) => {
+                            if (view !== "month") return "";
+                            const dateStr = date.toISOString().split("T")[0];
+                            if (unavailableDates.includes(dateStr)) {
+                              return "bg-red-200 text-red-700 rounded-x1 font-medium";
+                            }
+                            return "";
+                          }}
+                          className="border border-gray-300 rounded-xl shadow-md w-full"
                         />
 
                         {bookingError && <p className="mt-4 text-red-600">{bookingError}</p>}
