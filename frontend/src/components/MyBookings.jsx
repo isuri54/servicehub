@@ -207,7 +207,7 @@ const MyBookings = () => {
                         {booking.status === "pending" && (
                           <button
                             onClick={() => handleCancel(booking._id)}
-                            className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
+                            className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
                           >
                             Cancel Booking
                           </button>
@@ -215,18 +215,15 @@ const MyBookings = () => {
                         {booking.status === "confirmed" && (
                           <button
                             onClick={() => handleComplete(booking._id)}
-                            className="px-8 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-lg"
+                            className="px-4 py-2 bg-white text-green-600 font-bold rounded-xl hover:bg-green-700 transition shadow-lg"
                           >
-                            Mark as Completed
+                            ✔️ Mark as Completed
                           </button>
                         )}
 
                         {booking.status === "completed" && (
                           <div className="flex items-center gap-3">
-                            <span className="px-4 py-2 bg-green-100 text-green-800 rounded-full font-medium">
-                              Completed
-                            </span>
-                            <button className="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition" onClick={() => {
+                            <button className="px-4 py-2 bg-amber-400 text-white rounded-xl hover:bg-emerald-700 transition" onClick={() => {
                               setSelectedBooking(booking);
                               setShowReviewModal(true);
                             }}>
@@ -236,7 +233,7 @@ const MyBookings = () => {
                         )}
                         <button
                           onClick={() => navigate(`/provider/${booking.provider._id}`)}
-                          className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition"
+                          className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition"
                         >
                           View Provider
                         </button>
