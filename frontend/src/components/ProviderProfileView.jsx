@@ -4,6 +4,7 @@ import axios from "axios";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import UserProfileModal from './UserProfile';
+import CallProviderModal from "./CallProviderModal";
 
 const ProviderProfileView = () => {
   const { providerId } = useParams();
@@ -20,6 +21,7 @@ const ProviderProfileView = () => {
   const [bookingSuccess, setBookingSuccess] = useState("");
   const token = localStorage.getItem("token");
   const [showProfile, setShowProfile] = useState(false);
+  const [showCallModal, setShowCallModal] = useState(false);
 
   
     useEffect(() => {
@@ -335,7 +337,7 @@ const ProviderProfileView = () => {
                   <button className="w-full py-5 bg-green-600 text-white text-lg font-bold rounded-xl hover:bg-green-700 transition shadow-lg">
                     Send Message
                   </button>
-                  <button className="w-full py-5 border-2 border-green-600 text-green-600 text-lg font-bold rounded-xl hover:bg-green-600 hover:text-white transition">
+                  <button className="w-full py-5 border-2 border-green-600 text-green-600 text-lg font-bold rounded-xl hover:bg-green-600 hover:text-white transition" onClick={() => setShowCallModal(true)}>
                     Call Provider
                   </button>
                   <button className="w-full py-5 bg-emerald-600 text-white text-lg font-bold rounded-xl hover:bg-emerald-700 transition shadow-lg" onClick={() => setShowBookingModal(true)}>
@@ -401,6 +403,18 @@ const ProviderProfileView = () => {
           </div>
         </div>
       </div>
+
+      <CallProviderModal
+        isOpen={showCallModal}
+        onClose={() => setShowCallModal(false)}
+        provider={{
+          name: provider.name,
+          profileImage: provider.profileImage,
+          category: provider.category,
+          district: provider.district,
+          phone: provider.phone
+        }}
+      />
     </div>
   );
 };
