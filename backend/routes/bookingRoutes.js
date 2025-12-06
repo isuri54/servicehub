@@ -112,6 +112,16 @@ router.get("/provider-bookings", auth, async (req, res) => {
         select: "name profileImage phone district"
       })
       .sort({ createdAt: -1 });
+    
+    const bookedDates = [];
+    bookings.forEach(booking => {
+      let current = new Date(booking.dateRange.start);
+      const end = new Date(booking.dateRange.end);
+      while (current <= end) {
+        bookedDates.push(current.toISOString().split("T")[0]);
+        current.setDate(current.getDate() + 1);
+      }
+    });
 
     const formatted = bookings.map(b => ({
       _id: b._id,
@@ -130,6 +140,7 @@ router.get("/provider-bookings", auth, async (req, res) => {
     res.json({ 
       success: true,
       bookings: formatted,
+      bookedDates,
       rating: provider.rating || 0,
       reviewCount: provider.reviewCount || 0 
     });

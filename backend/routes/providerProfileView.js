@@ -27,7 +27,11 @@ router.get("/profileview/:providerId", async (req, res) => {
       experience: provider.experience,
       workImages: provider.workImages?.map(img => `${BASE_URL}/uploads/${img}`) || [],
       rating: provider.rating || 0,
-      reviewCount: provider.reviewCount || 0
+      reviewCount: provider.reviewCount || 0,
+      workingDays: provider.workingDays || [],
+      startTime: provider.startTime || "09:00",
+      endTime: provider.endTime || "17:00",
+      unavailableDates: provider.unavailableDates || []
     };
 
     res.json({ success: true, provider: providerData });

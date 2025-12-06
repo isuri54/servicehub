@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Provider = require('../models/Provider');
 const User = require('../models/User');
+const auth = require("../middleware/auth")
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
 
 router.get('/category/:categoryName', async (req, res) => {
@@ -46,6 +47,20 @@ router.get('/category/:categoryName', async (req, res) => {
       message: 'Server error',
       error: error.message 
     });
+  }
+});
+
+router.put("/availability", auth, async (req, res) => {
+  try {
+    const { workingDays, startTime, endTime, unavailableDates } = req.body;
+    await Provider.findOneAndUpdate(
+      { userId: req.userId },
+      { workingDays, startTime, endTime, unavailableDates },
+      { new: true }
+    );
+    res.json({ success: true, message: "Availability updated" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
