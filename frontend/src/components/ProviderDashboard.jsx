@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ContactClientModal from "./ContactClientModal";
+import AvailabilityModal from "./AvailabilityModal";
 
 const ProviderDashboard = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const ProviderDashboard = () => {
   const [selectedClient, setSelectedClient] = useState(null);
   const [providerRating, setProviderRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
+  const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -50,13 +52,10 @@ const ProviderDashboard = () => {
         setBookings(bookingsData);
         setLoading(false);
 
-        // NEW: Extract real rating & review count from provider data
-        // (We added this in backend response – see note below)
         if (bookingsRes.data.rating !== undefined) {
           setProviderRating(bookingsRes.data.rating);
           setReviewCount(bookingsRes.data.reviewCount || 0);
         } else if (bookingsData.length > 0 && bookingsData[0].provider) {
-          // Fallback: get from first booking (in case backend not updated yet)
           setProviderRating(bookingsData[0].provider.rating || 0);
           setReviewCount(bookingsData[0].provider.reviewCount || 0);
         } else {
@@ -311,7 +310,7 @@ const ProviderDashboard = () => {
       <div className="max-w-7xl mx-auto px-6">
         <h2 className="text-3xl font-bold text-gray-900 mb-8">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <button className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition text-left border border-green-100">
+          <button className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition text-left border border-green-100" onClick={() => setShowAvailabilityModal(true)}>
             <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-4">
               <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -349,6 +348,10 @@ const ProviderDashboard = () => {
         isOpen={showContactModal}
         onClose={() => setShowContactModal(false)}
         client={selectedClient}
+      />
+      <AvailabilityModal
+        isOpen={showAvailabilityModal}
+        onClose={() => setShowAvailabilityModal(false)}
       />
     </div>
   );
