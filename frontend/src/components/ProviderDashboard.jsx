@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ContactClientModal from "./ContactClientModal";
 import AvailabilityModal from "./AvailabilityModal";
+import QuickStatsModal from "./QuickStatsModal";
+import EarningsModal from "./EarningsModal";
 
 const ProviderDashboard = () => {
   const navigate = useNavigate();
@@ -17,6 +19,8 @@ const ProviderDashboard = () => {
   const [providerRating, setProviderRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
+  const [showStatsModal, setShowStatsModal] = useState(false);
+  const [showEarningsModal, setShowEarningsModal] = useState(false);
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -114,7 +118,7 @@ const ProviderDashboard = () => {
               alt="profile"
               className="w-10 h-10 rounded-full border-2 border-white"
             />
-            <div>
+            <div className="cursor-pointer" onClick={() => navigate("/provider-profile")}>
               <p className="font-semibold">{currentUser?.name || "Provider"}</p>
               <p className="text-xs text-green-200">Verified Provider</p>
             </div>
@@ -320,17 +324,17 @@ const ProviderDashboard = () => {
             <p className="text-gray-600 mt-2">Let clients know when you're free</p>
           </button>
 
-          <button className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition text-left border border-green-100">
+          <button className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition text-left border border-green-100" onClick={() => setShowStatsModal(true)}>
             <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-4">
               <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900">View My Services</h3>
-            <p className="text-gray-600 mt-2">Manage your listed services</p>
+            <h3 className="text-xl font-semibold text-gray-900">Quick Stats</h3>
+            <p className="text-gray-600 mt-2">Clients served • Response time • Growth</p>
           </button>
 
-          <button className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition text-left border border-green-100">
+          <button className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition text-left border border-green-100" onClick={() => setShowEarningsModal(true)}>
             <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-4">
               <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2m-4-8h-2a2 2 0 00-2 2v6a2 2 0 002 2h2m6-8v8" />
@@ -352,6 +356,14 @@ const ProviderDashboard = () => {
       <AvailabilityModal
         isOpen={showAvailabilityModal}
         onClose={() => setShowAvailabilityModal(false)}
+      />
+      <QuickStatsModal 
+        isOpen={showStatsModal} 
+        onClose={() => setShowStatsModal(false)} 
+      />
+      <EarningsModal
+        isOpen={showEarningsModal}
+        onClose={() => setShowEarningsModal(false)}
       />
     </div>
   );
