@@ -139,4 +139,27 @@ router.put("/update-profile", auth, upload.single("profileImage"), async (req, r
   }
 });
 
+router.get('/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('name email phone profileImage');
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || "",
+        profileImage: user.profileImage || ""
+      }
+    });
+  } catch (error) {
+    console.error('Get current user error:', error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 module.exports = router;

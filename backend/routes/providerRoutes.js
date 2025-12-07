@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Provider = require('../models/Provider');
 const User = require('../models/User');
-const auth = require("../middleware/auth")
+const auth = require("../middleware/auth");
+const upload = require("../middleware/upload");
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
 
 router.get('/category/:categoryName', async (req, res) => {
@@ -61,6 +62,112 @@ router.put("/availability", auth, async (req, res) => {
     res.json({ success: true, message: "Availability updated" });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.get("/profile", auth, async (req, res) => {
+  try {
+    const provider = await Provider.findOne({ userId: req.userId }).populate("userId", "name phone");
+    if (!provider) {
+      return res.status(404).json({ success: false, message: "Provider not found" });
+    }
+
+    const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+    res.json({
+      success: true,
+      provider: {
+        userId: {
+          name: provider.userId?.name || "",
+          phone: provider.userId?.phone || "",
+        },
+        profileImage: provider.profileImage ? `${BASE_URL}/Uploads/${provider.profileImage}` : null,
+        category: provider.category || "",
+        district: provider.district || "",
+        education: provider.education || "",
+        experience: provider.experience || "",
+        workingDays: provider.workingDays || [],
+        startTime: provider.startTime || "09:00",
+        endTime: provider.endTime || "17:00",
+        unavailableDates: provider.unavailableDates || [],
+      },
+    });
+  } catch (err) {
+    console.error("Error fetching provider profile:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.put("/update", auth, upload.single("profileImage"), async (req, res) => {
+  try {
+    const { name, phone, category, district, education, experience } = req.body;
+    const profileImage = req.file ? req.file.filename : null;
+
+    const provider = await Provider.findOne({ userId: req.userId });
+    if (!provider) {
+      return res.status(404).json({ success: false, message: "Provider not found" });
+    }
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    user.name = name || user.name;
+    user.phone = phone || user.phone;
+    await user.save();
+
+    provider.category = category || provider.category;
+    provider.district = district || provider.district;
+    provider.education = education || provider.education;
+    provider.experience = experience || provider.experience;
+    if (profileImage) provider.profileImage = profileImage;
+    await provider.save();
+
+    const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+    res.json({
+      success: true,
+      provider: {
+        userId: {
+          name: user.name,
+          phone: user.phone,
+        },
+        profileImage: provider.profileImage ? `${BASE_URL}/Uploads/${provider.profileImage}` : null,
+        category: provider.category,
+        district: provider.district,
+        education: provider.education,
+        experience: provider.experience,
+        workingDays: provider.workingDays,
+        startTime: provider.startTime,
+        endTime: provider.endTime,
+        unavailableDates: provider.unavailableDates,
+      },
+    });
+  } catch (err) {
+    console.error("Error updating provider profile:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.get("/earnings", auth, async (req, res) => {
+  try {
+    const provider = await Provider.findOne({ userId: req.userId });
+    res.json({ success: true, earnings: provider.earnings || [] });
+  } catch (err) {
+    res.status(500).json({ success: false });
+  }
+});
+
+router.post("/earnings", auth, async (req, res) => {
+  try {
+    const { amount, clientName, date, note } = req.body;
+    const provider = await Provider.findOneAndUpdate(
+      { userId: req.userId },
+      { $push: { earnings: { amount, clientName, date, note: note || "" } } },
+      { new: true }
+    );
+    res.json({ success: true, earnings: provider.earnings });
+  } catch (err) {
+    res.status(500).json({ success: false });
   }
 });
 

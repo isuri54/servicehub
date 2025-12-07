@@ -216,4 +216,48 @@ router.post("/review", auth, async (req, res) => {
   }
 });
 
+router.get("/provider-stats", auth, async (req, res) => {
+  try {
+    const provider = await Provider.findOne({ userId: req.userId });
+    if (!provider) return res.status(404).json({ success: false });
+
+    const bookings = await Booking.find({ providerId: provider._id });
+    const now = new Date();
+    const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    const thisMonthJobs = bookings.filter(b => new Date(b.dateRange.start) >= thisMonth).length;
+    const lastMonthJobs = bookings.filter(b => new Date(b.dateRange.start) >= lastMonth && new Date(b.dateRange.start) < thisMonth).length;
+
+    const completedJobs = bookings.filter(b => b.status === "completed").length;
+    const totalJobs = bookings.length;
+    const uniqueClients = [...new Set(bookings.map(b => b.userId.toString()))].length;
+    const repeatClients = bookings.reduce((acc, b) => {
+      const count = bookings.filter(x => x.userId.toString() === b.userId.toString()).length;
+      return count > 1 ? acc + 1 : acc;
+    }, 0) / 2;
+
+    const responseTimes = bookings
+      .filter(b => b.status === "confirmed")
+      .map(b => (new Date(b.updatedAt) - new Date(b.createdAt)) / (1000 * 60));
+    const avgResponseTime = responseTimes.length > 0
+      ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length)
+      : 0;
+
+    res.json({
+      success: true,
+      stats: {
+        totalClients: uniqueClients,
+        completionRate: totalJobs > 0 ? Math.round((completedJobs / totalJobs) * 100) : 0,
+        avgResponseTime: avgResponseTime > 0 ? `${avgResponseTime} min` : "N/A",
+        repeatClients: Math.floor(repeatClients),
+        thisMonthJobs,
+        lastMonthJobs
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false });
+  }
+});
+
 module.exports = router;
