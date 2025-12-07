@@ -15,6 +15,12 @@ const providerSchema = new mongoose.Schema({
   startTime: { type: String, default: "09:00" },
   endTime: { type: String, default: "17:00" },
   unavailableDates: [{ type: String }],
+  earnings: [{
+    amount: Number,
+    clientName: String,
+    date: Date,
+    note: String
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model("Provider", providerSchema);
