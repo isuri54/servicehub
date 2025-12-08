@@ -4,7 +4,7 @@ const Booking = require("../models/Booking");
 const User = require("../models/User");
 const Provider = require("../models/Provider");
 const Review = require("../models/Review");
-const auth = require("../middleware/auth")
+const auth = require("../middleware/auth");
 
 router.get("/availability/:providerId", async (req, res) => {
   try {
