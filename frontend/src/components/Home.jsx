@@ -1,6 +1,7 @@
-import React, {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserProfileModal from './UserProfile';
+import ClientChatModal from './ClientChatModal';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -8,6 +9,7 @@ const Home = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
   const categoriesRef = useRef(null);
+  const [showChatInbox, setShowChatInbox] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -47,7 +49,7 @@ const Home = () => {
   const handleCategoryClick = (name) => {
     const formatted = name.toLowerCase().replace(/\s+/g, "-");
     navigate(`/category/${formatted}`);
-    setShowCategories(false); // close dropdown after click
+    setShowCategories(false);
   };
 
   const visibleCategories = categories.slice(currentIndex, currentIndex + 5);
@@ -80,12 +82,11 @@ const Home = () => {
     navigate('/my-bookings');
   };
 
-  const handleProfileClick = () => {
-    if (currentUser) {
-      navigate('/');
-    } else {
-      navigate('/login');
-    }
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("currentUser");
+    localStorage.clear();
+    navigate("/login");
   };
 
   return (
@@ -135,6 +136,33 @@ const Home = () => {
             Become Provider
           </button>
 
+          <button
+            onClick={() => setShowChatInbox(true)}
+            className="p-2 rounded-full hover:bg-[#01336F] transition relative"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="white"
+              strokeWidth="2"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 12c0 4.418-4.03 8-9 8-1.31 0-2.56-.23-3.68-.65L3 21l1.35-4.05A7.92 7.92 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8 11l3 3 5-5"
+              />
+            </svg>
+
+            <span className="absolute top-1 right-1 w-2 h-2 bg-green-400 rounded-full"></span>
+          </button>
+
           <div 
             className="flex items-center gap-3 cursor-pointer" 
             onClick={() => setShowProfile(true)}>
@@ -144,6 +172,13 @@ const Home = () => {
           </div>
 
           <UserProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
+          
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition"
+          >
+            Logout
+          </button>
         </div>
       </nav>
 
@@ -174,12 +209,6 @@ const Home = () => {
                   className="px-12 py-4 bg-green-600 text-white font-semibold text-lg rounded-xl shadow-lg hover:bg-green-700 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
                 >
                   Get Started
-                </button>
-                <button
-                  onClick={handleLoginClick}
-                  className="px-12 py-4 border-2 border-green-600 text-green-600 font-semibold text-lg rounded-xl hover:bg-green-600 hover:text-white transition-all duration-300"
-                >
-                  Sign In
                 </button>
               </div>
             </div>
@@ -327,6 +356,11 @@ const Home = () => {
           </div>
         </div>
       </div>
+
+      <ClientChatModal
+        isOpen={showChatInbox}
+        onClose={() => setShowChatInbox(false)}
+      />
     </div>
   );
 };
