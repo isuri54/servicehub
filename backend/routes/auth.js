@@ -162,4 +162,19 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
+router.put("/add-district", auth, async (req, res) => {
+  try {
+    const { district } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { $set: { district } },
+      { new: true, upsert: false }
+    ).select("district name");
+
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ success: false });
+  }
+});
+
 module.exports = router;
