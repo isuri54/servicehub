@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   phone: { type: String, trim: true },
   role: { type: Boolean, default: false },
+  district: { type: String, trim: true, default: null },
   profileImage: { type: String, default: "" },
   isEmailVerified: { type: Boolean, default: false }
 }, { timestamps: true });
