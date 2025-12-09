@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -57,7 +57,11 @@ const Signup = () => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <div className="h-14 w-14 bg-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <span className="text-white text-3xl font-bold">SH</span>
+              <img 
+                src="/servicehub.png"
+                alt="ServiceHub Logo"
+                className="h-full w-full object-cover"
+              />
             </div>
           </div>
           <h2 className="text-4xl font-bold text-gray-900">Create Your Account</h2>
