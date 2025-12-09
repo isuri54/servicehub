@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ContactClientModal from "./ContactClientModal";
 import AvailabilityModal from "./AvailabilityModal";
 import QuickStatsModal from "./QuickStatsModal";
 import EarningsModal from "./EarningsModal";
+import ProviderChatModal from "./ProviderChatModal";
 
 const ProviderDashboard = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const ProviderDashboard = () => {
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showEarningsModal, setShowEarningsModal] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -100,6 +102,7 @@ const ProviderDashboard = () => {
     const handleLogout = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("currentUser");
+      localStorage.clear();
       navigate("/login");
     };
 
@@ -123,6 +126,32 @@ const ProviderDashboard = () => {
               <p className="text-xs text-green-200">Verified Provider</p>
             </div>
           </div>
+          <button
+            onClick={() => setShowChatModal(true)}
+            className="p-2 rounded-full hover:bg-[#01336F] transition relative"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="white"
+              strokeWidth="2"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 12c0 4.418-4.03 8-9 8-1.31 0-2.56-.23-3.68-.65L3 21l1.35-4.05A7.92 7.92 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8 11l3 3 5-5"
+              />
+            </svg>
+
+            <span className="absolute top-1 right-1 w-2 h-2 bg-green-400 rounded-full"></span>
+          </button>
           <button
             onClick={handleLogout}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition"
@@ -364,6 +393,10 @@ const ProviderDashboard = () => {
       <EarningsModal
         isOpen={showEarningsModal}
         onClose={() => setShowEarningsModal(false)}
+      />
+      <ProviderChatModal
+        isOpen={showChatModal}
+        onClose={() => setShowChatModal(false)}
       />
     </div>
   );
