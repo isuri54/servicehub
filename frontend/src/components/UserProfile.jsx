@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 const UserProfileModal = ({ isOpen, onClose }) => {
@@ -11,22 +11,28 @@ const UserProfileModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      const savedUser = localStorage.getItem("currentUser");
-      if (savedUser) {
-        const user = JSON.parse(savedUser);
-        setCurrentUser(user);
-        setFormData({
-          name: user.name || "",
-          email: user.email || "",
-          phone: user.phone || "",
-        });
-        setPreviewImage(user.profileImage || "/user.png");
-      }
-    } else {
-      setFormData({ name: "", email: "", phone: "" });
-      setProfileImage(null);
-      setPreviewImage("/user.png");
-      setMessage("");
+      const fetchUser = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) return;
+
+          const res = await axios.get("/api/auth/me", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          const user = res.data.user;
+          setCurrentUser(user);
+          setFormData({
+            name: user.name || "",
+            email: user.email || "",
+            phone: user.phone || "",
+          });
+          setPreviewImage(user.profileImage || "/user.png");
+        } catch (err) {
+          console.error("Failed to fetch user:", err);
+        }
+      };
+      fetchUser();
     }
   }, [isOpen]);
 
@@ -123,7 +129,7 @@ const UserProfileModal = ({ isOpen, onClose }) => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-500 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
               />
             </div>
@@ -146,8 +152,7 @@ const UserProfileModal = ({ isOpen, onClose }) => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="0771234567"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-500 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
 
