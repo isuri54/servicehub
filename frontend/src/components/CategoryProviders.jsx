@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import UserProfileModal from './UserProfile';
+import ClientChatModal from "./ClientChatModal";
 
 const CategoryProviders = () => {
   const { categoryName } = useParams();
@@ -11,6 +12,22 @@ const CategoryProviders = () => {
   const [error, setError] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
+  const [showCategories, setShowCategories] = useState(false);
+  const categoriesRef = useRef(null);
+  const [showChatInbox, setShowChatInbox] = useState(false);
+
+  const categories = [
+    { id: 1, name: "Plumbing", image: "/plumbing.jpg", bgColor: "bg-blue-500" },
+    { id: 2, name: "Welding", image: "/welding.jpg", bgColor: "bg-yellow-500" },
+    { id: 3, name: "Carpentry", image: "/carpentry.jpg", bgColor: "bg-brown-600" },
+    { id: 4, name: "Painting", image: "/painting.jpeg", bgColor: "bg-red-500" },
+    { id: 5, name: "Cleaning", image: "/cleaning.jpeg", bgColor: "bg-green-500" },
+    { id: 6, name: "Driving", image: "/driving.jpg", bgColor: "bg-indigo-500" },
+    { id: 7, name: "Roofing", image: "/roofing.jpeg", bgColor: "bg-gray-700" },
+    { id: 8, name: "Landscaping", image: "/landscaping.jpg", bgColor: "bg-emerald-600" },
+    { id: 9, name: "Construction", image: "/construction.jpg", bgColor: "bg-orange-500" },
+    { id: 10, name: "Appliance Repair", image: "/appliance-repair.jpg", bgColor: "bg-purple-600" }
+  ];
   
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -53,12 +70,17 @@ const CategoryProviders = () => {
     navigate('/my-bookings');
   };
 
-  const handleProfileClick = () => {
-    if (currentUser) {
-      navigate('/');
-    } else {
-      navigate('/login');
-    }
+  const handleCategoryClick = (name) => {
+    const formatted = name.toLowerCase().replace(/\s+/g, "-");
+    navigate(`/category/${formatted}`);
+    setShowCategories(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("currentUser");
+    localStorage.clear();
+    navigate("/login");
   };
 
   return (
@@ -70,7 +92,35 @@ const CategoryProviders = () => {
         </div>
 
         <div className="flex items-center gap-8">
-          <button className="hover:text-green-300 text-lg">Categories</button>
+          <div className="relative" ref={categoriesRef}>
+            <button
+              onMouseEnter={() => setShowCategories(true)}
+              className="hover:text-green-300 text-lg font-medium transition"
+            >
+              Categories
+            </button>
+
+            {showCategories && (
+              <div
+                onMouseLeave={() => setShowCategories(false)}
+                className="absolute top-12 left-1/2 -translate-x-1/2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-4 duration-200"
+              >
+                <div className="grid gap-2 p-3 max-h-96 overflow-y-auto">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => handleCategoryClick(cat.name)}
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-green-50 transition group cursor-pointer"
+                    >
+                      <span className="text-gray-800 font-medium group-hover:text-green-600">
+                        {cat.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           <button className="hover:text-green-300 text-lg" onClick={handleBookingsClick}>My Bookings</button>
 
           <button
@@ -78,6 +128,33 @@ const CategoryProviders = () => {
             className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
           >
             Become Provider
+          </button>
+
+          <button
+            onClick={() => setShowChatInbox(true)}
+            className="p-2 rounded-full hover:bg-[#01336F] transition relative"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="white"
+              strokeWidth="2"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 12c0 4.418-4.03 8-9 8-1.31 0-2.56-.23-3.68-.65L3 21l1.35-4.05A7.92 7.92 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8 11l3 3 5-5"
+              />
+            </svg>
+
+            <span className="absolute top-1 right-1 w-2 h-2 bg-green-400 rounded-full"></span>
           </button>
 
           <div 
@@ -89,6 +166,13 @@ const CategoryProviders = () => {
           </div>
 
           <UserProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
+          
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition"
+          >
+            Logout
+          </button>
         </div>
       </nav>
 
@@ -218,6 +302,10 @@ const CategoryProviders = () => {
           ))}
         </div>
       </div>
+      <ClientChatModal
+        isOpen={showChatInbox}
+        onClose={() => setShowChatInbox(false)}
+      />
     </div>
   );
 };
