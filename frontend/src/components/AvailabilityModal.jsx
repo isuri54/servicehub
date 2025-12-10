@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import axios from "axios";
@@ -91,7 +91,7 @@ const AvailabilityModal = ({ isOpen, onClose }) => {
     if (view !== "month") return "";
 
     if (isDateBooked(date)) {
-      return "bg-gray-300 text-gray-700 rounded-full font-medium cursor-not-allowed";
+      return "bg-gray-300 text-gray-700 rounded-x1 font-medium cursor-not-allowed";
     }
     if (isDateUnavailable(date)) {
       return "bg-red-500 text-white rounded-full font-bold";
