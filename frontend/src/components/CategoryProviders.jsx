@@ -15,6 +15,8 @@ const CategoryProviders = () => {
   const [showCategories, setShowCategories] = useState(false);
   const categoriesRef = useRef(null);
   const [showChatInbox, setShowChatInbox] = useState(false);
+  const [selectedDistrict, setSelectedDistrict] = useState("All Districts");
+  const [showDistrictDropdown, setShowDistrictDropdown] = useState(false);
 
   const categories = [
     { id: 1, name: "Plumbing", image: "/plumbing.jpg", bgColor: "bg-blue-500" },
@@ -28,6 +30,19 @@ const CategoryProviders = () => {
     { id: 9, name: "Construction", image: "/construction.jpg", bgColor: "bg-orange-500" },
     { id: 10, name: "Appliance Repair", image: "/appliance-repair.jpg", bgColor: "bg-purple-600" }
   ];
+
+  const districts = [
+    "All Districts", "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya",
+    "Galle", "Matara", "Hambantota", "Jaffna", "Kilinochchi", "Mannar", "Vavuniya",
+    "Mullaitivu", "Batticaloa", "Ampara", "Trincomalee", "Kurunegala", "Puttalam",
+    "Anuradhapura", "Polonnaruwa", "Badulla", "Moneragala", "Ratnapura", "Kegalle"
+  ];
+
+  const filteredProviders = selectedDistrict === "All Districts"
+    ? providers
+    : providers.filter(p => p.district === selectedDistrict);
+  
+  
   
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -187,7 +202,48 @@ const CategoryProviders = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-16">
+      <div className="flex justify-end gap-4">
+        <span className="text-black font-semibold text-lg py-3">Filter by:</span>
+            <div className="relative inline-block">
+              <button
+                onClick={() => setShowDistrictDropdown(!showDistrictDropdown)}
+                className="px-8 py-4 bg-white text-green-700 font-bold rounded-xl shadow-lg hover:bg-green-50 transition flex items-center gap-3"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                {selectedDistrict}
+                <svg className={`w-5 h-5 ml-2 transition-transform ${showDistrictDropdown ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+
+              {showDistrictDropdown && (
+                <div className="absolute top-full mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-96 overflow-y-auto">
+                  {districts.map((district) => (
+                    <button
+                      key={district}
+                      onClick={() => {
+                        setSelectedDistrict(district);
+                        setShowDistrictDropdown(false);
+                      }}
+                      className={`w-full text-left px-6 py-3 hover:bg-green-50 transition ${selectedDistrict === district ? "bg-green-100 text-green-700 font-bold" : "text-gray-800"}`}
+                    >
+                      {district}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <p className="text-center text-green-100 mt-6 text-lg">
+            {filteredProviders.length} provider{filteredProviders.length !== 1 ? "s" : ""} found
+            {selectedDistrict !== "All Districts" && ` in ${selectedDistrict}`}
+          </p>
+
+      <div className="max-w-7xl mx-auto px-6 py-10">
         {loading && (
           <div className="text-center py-20">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-green-600"></div>
@@ -222,7 +278,7 @@ const CategoryProviders = () => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {providers.map((provider) => (
+          {filteredProviders.map((provider) => (
             <div
               key={provider._id}
               className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer"
