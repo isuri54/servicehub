@@ -1,5 +1,3 @@
-import React from "react";
-
 const CallProviderModal = ({ isOpen, onClose, provider }) => {
   if (!isOpen || !provider) return null;
 

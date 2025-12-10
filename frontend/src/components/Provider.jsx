@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -177,9 +177,31 @@ const ProviderRegistration = () => {
           >
             <option value="">Select District</option>
             <option>Colombo</option>
+            <option>Gampaha</option>
+            <option>Kalutara</option>
             <option>Kandy</option>
+            <option>Matale</option>
+            <option>Nuwara Eliya</option>
             <option>Galle</option>
+            <option>Matara</option>
+            <option>Hambantota</option>
             <option>Jaffna</option>
+            <option>Kilinochchi</option>
+            <option>Mannar</option>
+            <option>Vavuniya</option>
+            <option>Mullaitivu</option>
+            <option>Batticaloa</option>
+            <option>Ampara</option>
+            <option>Trincomalee</option>
+            <option>Kurunegala</option>
+            <option>Puttalam</option>
+            <option>Anuradhapura</option>
+            <option>Polonnaruwa</option>
+            <option>Badulla</option>
+            <option>Monaragala</option>
+            <option>Ratnapura</option>
+            <option>Kegalle</option>
+
           </select>
 
           <select

@@ -1,5 +1,3 @@
-import React from "react";
-
 const ContactClientModal = ({ isOpen, onClose, client }) => {
   if (!isOpen || !client) return null;
 
