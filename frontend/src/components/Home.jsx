@@ -10,6 +10,9 @@ const Home = () => {
   const [showCategories, setShowCategories] = useState(false);
   const categoriesRef = useRef(null);
   const [showChatInbox, setShowChatInbox] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -45,6 +48,10 @@ const Home = () => {
     { id: 9, name: "Construction", image: "/construction.jpg", bgColor: "bg-orange-500" },
     { id: 10, name: "Appliance Repair", image: "/appliance-repair.jpg", bgColor: "bg-purple-600" }
   ];
+
+  const filteredCategories = categories.filter(cat =>
+    cat.name.toLowerCase().startsWith(searchQuery.toLowerCase())
+  );
 
   const handleCategoryClick = (name) => {
     const formatted = name.toLowerCase().replace(/\s+/g, "-");
@@ -91,98 +98,119 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-emerald-200">
-      <nav className="w-full bg-[#00204A] text-white shadow-lg py-4 px-6 flex items-center justify-between">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/') }>
-          <img src="/servicehub.png" alt="logo" className="w-10 h-10 rounded-full" />
-          <h1 className="text-2xl font-bold">ServiceHub</h1>
-        </div>
+      <nav className="w-full bg-[#00204A] text-white shadow-lg py-4">
+        <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+            <img src="/servicehub.png" alt="logo" className="w-10 h-10 rounded-full" />
+            <h1 className="text-2xl font-bold hidden sm:block">ServiceHub</h1>
+          </div>
 
-        <div className="flex items-center gap-8">
-          <div className="relative" ref={categoriesRef}>
-            <button
-              onMouseEnter={() => setShowCategories(true)}
-              className="hover:text-green-300 text-lg font-medium transition"
-            >
-              Categories
+          <div className="hidden md:flex items-center gap-6">
+            <div className="relative" ref={categoriesRef}>
+              <button
+                onMouseEnter={() => setShowCategories(true)}
+                className="hover:text-green-300 text-lg font-medium transition"
+              >
+                Categories
+              </button>
+
+              {showCategories && (
+                <div
+                  onMouseLeave={() => setShowCategories(false)}
+                  className="absolute top-12 left-1/2 -translate-x-1/2 w-80 bg-white text-gray-800 rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50"
+                >
+                  <div className="grid gap-2 p-3 max-h-96 overflow-y-auto">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => handleCategoryClick(cat.name)}
+                        className="p-3 rounded-xl hover:bg-green-50 transition text-left"
+                      >
+                        {cat.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button className="hover:text-green-300 text-lg" onClick={handleBookingsClick}>
+              My Bookings
             </button>
 
-            {showCategories && (
-              <div
-                onMouseLeave={() => setShowCategories(false)}
-                className="absolute top-12 left-1/2 -translate-x-1/2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-4 duration-200"
-              >
-                <div className="grid gap-2 p-3 max-h-96 overflow-y-auto">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => handleCategoryClick(cat.name)}
-                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-green-50 transition group cursor-pointer"
-                    >
-                      <span className="text-gray-800 font-medium group-hover:text-green-600">
-                        {cat.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-          <button className="hover:text-green-300 text-lg" onClick={handleBookingsClick}>My Bookings</button>
-
-          <button
-            onClick={handleProvider}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
-          >
-            Become Provider
-          </button>
-
-          <button
-            onClick={() => setShowChatInbox(true)}
-            className="p-2 rounded-full hover:bg-[#01336F] transition relative"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="white"
-              strokeWidth="2"
-              className="w-6 h-6"
+            <button
+              onClick={handleProvider}
+              className="px-4 py-2 bg-green-600 rounded-lg font-medium hover:bg-green-700 transition"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 12c0 4.418-4.03 8-9 8-1.31 0-2.56-.23-3.68-.65L3 21l1.35-4.05A7.92 7.92 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8 11l3 3 5-5"
-              />
-            </svg>
+              Become Provider
+            </button>
 
-            <span className="absolute top-1 right-1 w-2 h-2 bg-green-400 rounded-full"></span>
-          </button>
+            <button
+              onClick={() => setShowChatInbox(true)}
+              className="p-2 rounded-full hover:bg-[#01336F] transition relative"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 12c0 4.418-4.03 8-9 8-1.31 0-2.56-.23-3.68-.65L3 21l1.35-4.05A7.92 7.92 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 11l3 3 5-5" />
+              </svg>
+              <span className="absolute top-1 right-1 w-2 h-2 bg-green-400 rounded-full"></span>
+            </button>
 
-          <div 
-            className="flex items-center gap-3 cursor-pointer" 
-            onClick={() => setShowProfile(true)}>
-
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setShowProfile(true)}>
               <img src={currentUser?.profileImage || "/user.png"} alt="profile" className="w-10 h-10 rounded-full border-2 border-white" />
-              <span className="font-semibold">{currentUser?.name || "Guest"}</span>
+              <span className="font-semibold hidden lg:block">{currentUser?.name || "Guest"}</span>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-red-600 rounded-lg text-sm font-medium hover:bg-red-700 transition"
+            >
+              Logout
+            </button>
           </div>
 
-          <UserProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
-          
           <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2"
           >
-            Logout
+            <svg className="w-8 h-8" fill="none" stroke="white" viewBox="0 0 24 24">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
           </button>
         </div>
+
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[#00204A] border-t border-gray-700">
+            <div className="px-6 py-4 space-y-4">
+              <button className="block w-full text-left text-lg hover:text-green-300" onClick={handleBookingsClick}>
+                My Bookings
+              </button>
+              <button className="block w-full text-left text-lg hover:text-green-300" onClick={handleProvider}>
+                Become Provider
+              </button>
+              <button className="block w-full text-left text-lg hover:text-green-300" onClick={() => setShowChatInbox(true)}>
+                Messages
+              </button>
+              <div className="flex items-center gap-3 py-2 border-t border-gray-600" onClick={() => setShowProfile(true)}>
+                <img src={currentUser?.profileImage || "/user.png"} alt="profile" className="w-10 h-10 rounded-full border-2 border-white" />
+                <span className="font-semibold">{currentUser?.name || "Guest"}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="w-full py-2 py-3 bg-red-600 rounded-lg font-medium hover:bg-red-700 transition"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        )}
       </nav>
 
-      <div className="relative overflow-hidden">
+      <div className="relative" onClick={() => setShowDropdown(false)}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center py-20">
             <div className="text-center lg:text-left">
@@ -196,16 +224,48 @@ const Home = () => {
               </p>
 
               <div className="flex justify-center lg:justify-start mb-10">
-                <input
-                  type="text"
-                  placeholder="Search for a category..."
-                  className="w-full max-w-md px-4 py-3 border border-gray-300 rounded-xl shadow-md focus:outline-none focus:ring-2 focus:ring-green-600"
-                />
+                <div className="relative w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setShowDropdown(true)}
+                    placeholder="Search for a category..."
+                    className="w-full px-6 py-4 text-lg border border-gray-300 rounded-xl shadow-md focus:outline-none focus:ring-2 focus:ring-green-600 transition-all"
+                  />
+
+                  {showDropdown && searchQuery && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                      {filteredCategories.length === 0 ? (
+                        <p className="p-6 text-center text-gray-500">No category found</p>
+                      ) : (
+                        <div className="max-h-80 overflow-y-auto">
+                          {filteredCategories.map((cat) => (
+                            <button
+                              key={cat.id}
+                              onClick={() => {
+                                handleCategoryClick(cat.name);
+                                setSearchQuery("");
+                                setShowDropdown(false);
+                              }}
+                              className="w-full text-left px-6 py-4 hover:bg-green-50 transition flex items-center gap-4 group"
+                            >
+                              <div>
+                                <p className="font-semibold text-gray-800 group-hover:text-green-600">
+                                  {cat.name}
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <button
-                  onClick={handleSignupClick}
                   className="px-12 py-4 bg-green-600 text-white font-semibold text-lg rounded-xl shadow-lg hover:bg-green-700 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
                 >
                   Get Started
@@ -213,7 +273,7 @@ const Home = () => {
               </div>
             </div>
 
-            <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="circle c1"></div>
                 <div className="circle c2"></div>
                 <div className="circle c3"></div>
@@ -356,7 +416,10 @@ const Home = () => {
           </div>
         </div>
       </div>
-
+      <UserProfileModal 
+        isOpen={showProfile} 
+        onClose={() => setShowProfile(false)} 
+      />
       <ClientChatModal
         isOpen={showChatInbox}
         onClose={() => setShowChatInbox(false)}
