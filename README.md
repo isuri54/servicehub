@@ -84,12 +84,12 @@ cd servicehub
 docker-compose up --build
 
 (Manual)
-# Backend
+#Backend
 cd backend
 npm install
 npm run dev
 
-# Frontend (new terminal)
+#Frontend
 cd frontend
 npm install
 npm start
