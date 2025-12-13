@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 const UserProfileModal = ({ isOpen, onClose }) => {
-  const [setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState("/user.png");
@@ -21,7 +20,6 @@ const UserProfileModal = ({ isOpen, onClose }) => {
           });
 
           const user = res.data.user;
-          setCurrentUser(user);
           setFormData({
             name: user.name || "",
             email: user.email || "",
@@ -64,7 +62,6 @@ const UserProfileModal = ({ isOpen, onClose }) => {
       if (response.data.success) {
         const updatedUser = response.data.user;
         localStorage.setItem("currentUser", JSON.stringify(updatedUser));
-        setCurrentUser(updatedUser);
         setPreviewImage(updatedUser.profileImage || "/user.png");
         setMessage("Profile updated successfully!");
 
