@@ -11,8 +11,6 @@ const ProviderDashboard = () => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const pendingBookings = bookings.filter(b => b.status === "pending");
   const confirmedBookings = bookings.filter(b => b.status === "confirmed");
   const [showContactModal, setShowContactModal] = useState(false);

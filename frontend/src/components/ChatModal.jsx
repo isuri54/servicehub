@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-const ChatModal = ({ isOpen, onClose, provider, currentUser }) => {
+const ChatModal = ({ isOpen, onClose, provider }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);

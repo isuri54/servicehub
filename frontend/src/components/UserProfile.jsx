@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 const UserProfileModal = ({ isOpen, onClose }) => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState("/user.png");
