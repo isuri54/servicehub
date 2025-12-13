@@ -48,7 +48,9 @@ const ChatModal = ({ isOpen, onClose, provider, currentUser }) => {
   };
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
   if (!isOpen) return null;
