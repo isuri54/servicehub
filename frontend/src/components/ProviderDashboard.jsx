@@ -54,7 +54,6 @@ const ProviderDashboard = () => {
         const bookingsData = bookingsRes.data.bookings || [];
 
         setBookings(bookingsData);
-        setLoading(false);
 
         if (bookingsRes.data.rating !== undefined) {
           setProviderRating(bookingsRes.data.rating);
@@ -69,8 +68,6 @@ const ProviderDashboard = () => {
 
       } catch (err) {
         console.error("Dashboard load failed:", err);
-        setError("Failed to load dashboard data");
-        setLoading(false);
       }
     };
 
