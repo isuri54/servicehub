@@ -27,7 +27,7 @@ jobs:
         run: |
           cd frontend
           npm ci
-          npm test -- --watchAll=false   # Runs your passing tests
+          npm test -- --watchAll=false
           npm run build
 
       - name: Backend Install (Skip Tests)
@@ -38,7 +38,7 @@ jobs:
 
       - name: Build Docker Images
         run: |
-          docker-compose build --parallel
+          docker compose build --parallel
 
       - name: Pipeline Success!
         run: echo "CI/CD Pipeline Passed!"
