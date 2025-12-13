@@ -1,5 +1,6 @@
 ## ServiceHub — Full-Stack Service Booking Platform
 
+[![CI/CD Pipeline](https://github.com/isuri54/servicehub/actions/workflows/cicd.yml/badge.svg)](https://github.com/isuri54/servicehub/actions/workflows/cicd.yml)
 Frontend: http://localhost:3000 | Backend: http://localhost:5000
 
 ServiceHub is a Dockerized MERN-stack platform that connects clients with verified local service providers (plumbers, carpenters, cleaners, electricians, etc.). Clients can discover, chat, book, and review providers — all in one seamless experience.
