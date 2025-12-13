@@ -3,7 +3,7 @@
 Frontend: http://localhost:3000 | Backend: http://localhost:5000
 
 ServiceHub is a Dockerized MERN-stack platform that connects clients with verified local service providers (plumbers, carpenters, cleaners, electricians, etc.). Clients can discover, chat, book, and review providers — all in one seamless experience.
-Built with modern DevOps practices: Docker, real-time chat, role-based access, responsive design.
+Built with modern DevOps practices: Docker, CI/CD, real-time chat, role-based access, responsive design.
 
 ## Features
 
@@ -23,6 +23,8 @@ Responsive & Mobile-First Design:
 Beautiful, fast, and fully functional on phones, tablets, and desktops — built with Tailwind CSS for a modern user experience.
 Dockerized Full-Stack Architecture:
 Frontend (React + Nginx), Backend (Node.js/Express), and Database (MongoDB) all run in separate containers, deployable with a single command.
+CI/CD Ready:
+GitHub Actions pipeline automatically tests and builds the app on every push.
 
 ## Teck Stack
 
@@ -32,6 +34,7 @@ Database: MongoDB
 Auth: JWT + RBAC + bcrypt
 File Upload: Multer + local storage
 Container: Docker + Docker Compose
+CI/CD: GitHub Actions
 
 ## Screenshots
 
